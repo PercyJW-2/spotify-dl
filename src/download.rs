@@ -79,7 +79,7 @@ impl Downloader {
         let metadata = track.metadata(&self.session).await?;
         tracing::info!("Downloading track: {:?}", metadata);
 
-        let file_name = self.get_file_name(&metadata);
+        let file_name = self.get_file_name(&metadata, track.track_number);
         let path = options
             .destination
             .join(file_name.clone())
@@ -147,7 +147,7 @@ impl Downloader {
         Box::new(NoOpVolume)
     }
 
-    fn get_file_name(&self, metadata: &TrackMetadata) -> String {
+    fn get_file_name(&self, metadata: &TrackMetadata, track_num: usize) -> String {
         // If there is more than 3 artists, add the first 3 and add "and others" at the end
         if metadata.artists.len() > 3 {
             let artists_name = metadata
@@ -158,8 +158,8 @@ impl Downloader {
                 .collect::<Vec<String>>()
                 .join(", ");
             return self.clean_file_name(format!(
-                "{}, and others - {}",
-                artists_name, metadata.track_name
+                "{:0>4} - {}, and others - {}",
+                track_num, artists_name, metadata.track_name
             ));
         }
 
@@ -169,7 +169,7 @@ impl Downloader {
             .map(|artist| artist.name.clone())
             .collect::<Vec<String>>()
             .join(", ");
-        self.clean_file_name(format!("{} - {}", artists_name, metadata.track_name))
+        self.clean_file_name(format!("{:0>4} - {} - {}", track_num, artists_name, metadata.track_name))
     }
 
     fn clean_file_name(&self, file_name: String) -> String {

@@ -32,6 +32,9 @@ pub async fn get_tracks(spotify_ids: Vec<String>, session: &Session) -> Result<V
         tracks.extend(new_tracks);
     }
     tracing::debug!("Got tracks: {:?}", tracks);
+    for i in 0..tracks.len() {
+        tracks[i].track_number = i;
+    }
     Ok(tracks)
 }
 
@@ -58,6 +61,7 @@ fn parse_url(track_url: &str) -> Option<SpotifyId> {
 #[derive(Clone, Debug)]
 pub struct Track {
     pub id: SpotifyId,
+    pub track_number: usize,
 }
 
 lazy_static! {
@@ -68,11 +72,11 @@ lazy_static! {
 impl Track {
     pub fn new(track: &str) -> Result<Self> {
         let id = parse_uri_or_url(track).ok_or(anyhow::anyhow!("Invalid track"))?;
-        Ok(Track { id })
+        Ok(Track { id, track_number: 0 })
     }
 
     pub fn from_id(id: SpotifyId) -> Self {
-        Track { id }
+        Track { id, track_number: 0 }
     }
 
     pub async fn metadata(&self, session: &Session) -> Result<TrackMetadata> {
