@@ -14,7 +14,7 @@ use librespot::playback::config::PlayerConfig;
 use librespot::playback::mixer::NoOpVolume;
 use librespot::playback::mixer::VolumeGetter;
 use librespot::playback::player::Player;
-
+use tracing_subscriber::fmt::format;
 use crate::channel_sink::ChannelSink;
 use crate::encoder::Format;
 use crate::encoder::Samples;
@@ -139,7 +139,10 @@ impl Downloader {
         tracing::info!("Writing track: {:?} to file: {}", file_name, &path);
         stream.write_to_file(&path).await?;
 
-        pb.finish_with_message(format!("Downloaded {}", &file_name));
+        let track_duration = track.metadata(&self.session).await?.duration as u64;
+        pb.set_message(format!("Downloaded {} Waiting {}ms", &file_name, track_duration));
+        tokio::time::sleep(Duration::from_millis(track_duration)).await;
+        pb.finish_with_message(format!("Finished {}", &file_name));
         Ok(())
     }
 

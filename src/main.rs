@@ -34,8 +34,8 @@ struct Opt {
     #[structopt(
         short = "t",
         long = "parallel",
-        help = "Number of parallel downloads. Default is 5.",
-        default_value = "5"
+        help = "Number of parallel downloads. Default is 1. A higher value leads to a Password reset",
+        default_value = "1"
     )]
     parallel: usize,
     #[structopt(
