@@ -92,7 +92,7 @@ impl Downloader {
 
         let file_size = sink.get_approximate_size();
 
-        let (mut player, _) = Player::new(
+        let player = Player::new(
             self.player_config.clone(),
             self.session.clone(),
             self.volume_getter(),
